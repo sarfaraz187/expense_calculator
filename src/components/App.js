@@ -5,6 +5,7 @@ import "../style.css";
 
 const App = () => {
   const [balance, setBalance] = useState(0);
+  const [transactionReport, setTransactionReport] = useState([]);
 
   useEffect(() => {
     setBalance(0);
@@ -14,16 +15,21 @@ const App = () => {
 
   function calculateBalance(payload) {
     let amount = Number($("#expense").val());
-    setBalance(
-      payload.operation === "Add" ? balance + amount : balance - amount
-    );
+    let performCalc = {
+      Add: () => balance + amount,
+      Remove: () => balance - amount,
+      multiply: () => balance * amount,
+      division: () => balance / amount,
+    };
+    setBalance(performCalc[payload.operation]);
+    // payload.operation === "Add" ? balance + amount : balance - amount
 
     if (amount > 0) {
-      $("#transaction_report").append(
-        `<p>${moment().format()} - ${amount} - <b>${
-          payload.operation
-        } </b> </p>`
-      );
+      let date = moment().format();
+      setTransactionReport([
+        ...transactionReport,
+        `${date} - ${amount} - ${payload.operation}`,
+      ]);
     }
     $("#expense").val("");
   }
@@ -62,7 +68,11 @@ const App = () => {
       </section>
       <section className="tracker-layout container trasaction-sec">
         <b>Transaction </b>
-        <div className="mt-3" id="transaction_report"></div>
+        <div className="mt-3" id="transaction_report">
+          {transactionReport.map((element) => {
+            return <p>{element}</p>;
+          })}
+        </div>
       </section>
     </React.Fragment>
   );
